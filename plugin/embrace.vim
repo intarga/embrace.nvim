@@ -9,6 +9,8 @@ command! EmbraceInsertList lua require("embrace").insert_before_list()
 command! EmbraceAppendList lua require("embrace").insert_after_list()
 command! EmbraceInsertElem lua require("embrace").insert_before_elem()
 command! EmbraceAppendElem lua require("embrace").insert_after_elem()
+command! EmbraceSlurpBack  lua require("embrace").slurp_back()
+command! EmbraceSlurpForth lua require("embrace").slurp_forth()
 
 let &cpo = s:save_cpo " and restore after
 unlet s:save_cpo
