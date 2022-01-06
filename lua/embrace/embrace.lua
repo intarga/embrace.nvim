@@ -121,4 +121,19 @@ function M.slurp_forth()
     vim.api.nvim_win_set_cursor(0, curpos)
 end
 
+function M.splice()
+    local curpos = vim.api.nvim_win_get_cursor(0)
+
+    if char_under_cursor() ~= ')' then
+        endline, endcol = nearest_matching_brace('W')
+    end
+    startline, startcol = nearest_matching_brace('bnW')
+
+    delete_under_cursor()
+    vim.api.nvim_win_set_cursor(0, {startline, startcol-1})
+    delete_under_cursor()
+
+    vim.api.nvim_win_set_cursor(0, curpos)
+end
+
 return M
