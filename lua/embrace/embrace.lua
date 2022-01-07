@@ -9,8 +9,20 @@ local function char_under_cursor()
     return vim.api.nvim_get_current_line():sub(col+1,col+1)
 end
 
+local function at_end_of_line()
+    local col = vim.api.nvim_win_get_cursor(0)[2]
+    return col >= vim.api.nvim_get_current_line():len()-1
+end
+
 local function find_elem_start()
-    return unpack(vim.api.nvim_call_function('searchpos', {[[(\|\s]], 'bW'}))
+    local start = vim.api.nvim_call_function('searchpos', {[[(\|\s\|\n]], 'bW'})
+    if at_end_of_line() then
+        local pos = {start[1]+1, 0}
+        vim.api.nvim_win_set_cursor(0, pos)
+        return unpack(pos)
+    else
+        return unpack(start)
+    end
 end
 
 local function find_elem_end()
@@ -79,15 +91,19 @@ function M.insert_before_elem()
     find_elem_end()
     local paste_after = char_under_cursor() ~= ' '
     vim.api.nvim_put({')'}, 'c', paste_after, false)
+
     find_elem_start()
-    vim.api.nvim_put({'( '}, 'c', true, false)
+    local paste_before = char_under_cursor() == ' '
+    vim.api.nvim_put({'( '}, 'c', paste_before, false)
 
     vim.api.nvim_command('startinsert')
 end
 
 function M.insert_after_elem()
     find_elem_start()
-    vim.api.nvim_put({'('}, 'c', true, false)
+    local paste_before = char_under_cursor() == ' '
+    vim.api.nvim_put({'('}, 'c', paste_before, false)
+
     find_elem_end()
     local paste_after = char_under_cursor() ~= ' '
     vim.api.nvim_put({' )'}, 'c', paste_after, false)
