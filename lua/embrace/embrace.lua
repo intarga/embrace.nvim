@@ -14,7 +14,7 @@ local function find_elem_start()
 end
 
 local function find_elem_end()
-    return unpack(vim.api.nvim_call_function('searchpos', {[[)\|\s]], 'W'}))
+    return unpack(vim.api.nvim_call_function('searchpos', {[[)\|\s\|\n]], 'W'}))
 end
 
 local function prev_elem_start()
@@ -67,17 +67,18 @@ function M.insert_after_list()
         nearest_matching_brace('bW')
     end
 
-    vim.api.nvim_put({'('}, 'c', false, false)
+    vim.api.nvim_put({'('}, 'c', false, true)
 
     nearest_matching_brace('W')
-    vim.api.nvim_put({' )'}, 'c', false, false)
+    vim.api.nvim_put({' )'}, 'c', true, false)
 
     vim.api.nvim_command('startinsert')
 end
 
 function M.insert_before_elem()
     find_elem_end()
-    vim.api.nvim_put({')'}, 'c', false, false)
+    local paste_after = char_under_cursor() ~= ' '
+    vim.api.nvim_put({')'}, 'c', paste_after, false)
     find_elem_start()
     vim.api.nvim_put({'( '}, 'c', true, false)
 
@@ -88,7 +89,8 @@ function M.insert_after_elem()
     find_elem_start()
     vim.api.nvim_put({'('}, 'c', true, false)
     find_elem_end()
-    vim.api.nvim_put({' )'}, 'c', false, false)
+    local paste_after = char_under_cursor() ~= ' '
+    vim.api.nvim_put({' )'}, 'c', paste_after, false)
 
     vim.api.nvim_command('startinsert')
 end
@@ -116,7 +118,8 @@ function M.slurp_forth()
     delete_under_cursor()
 
     next_elem_end()
-    vim.api.nvim_put({')'}, 'c', true, false)
+    local paste_after = char_under_cursor() ~= ' '
+    vim.api.nvim_put({')'}, 'c', paste_after, false)
 
     vim.api.nvim_win_set_cursor(0, curpos)
 end
